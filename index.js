@@ -1,26 +1,26 @@
-function refreshWeather(response) {
-  let temperatureElement = document.querySelector("#temperature");
+function renderCurrentWeather(response) {
+  let temperatureElement = document.querySelector("#current-temperature");
   let temperature = response.data.temperature.current;
-  let cityElement = document.querySelector("#city");
-  let descriptionElement = document.querySelector("#description");
-  let humidityElement = document.querySelector("#humidity");
-  let windSpeedElement = document.querySelector("#wind-speed");
-  let timeElement = document.querySelector("#time");
+  let cityElement = document.querySelector("#current-city");
+  let descriptionElement = document.querySelector("#current-weather-description");
+  let humidityElement = document.querySelector("#current-humidity");
+  let windSpeedElement = document.querySelector("#current-wind-speed");
+  let timeElement = document.querySelector("#current-weather-time");
   let date = new Date(response.data.time * 1000);
-  let iconElement = document.querySelector("#icon");
+  let iconElement = document.querySelector("#current-weather-icon");
 
   cityElement.innerHTML = response.data.city;
-  timeElement.innerHTML = formatDate(date);
+  timeElement.innerHTML = formatCurrentWeatherDate(date);
   descriptionElement.innerHTML = response.data.condition.description;
   humidityElement.innerHTML = `${response.data.temperature.humidity}%`;
   windSpeedElement.innerHTML = `${response.data.wind.speed}km/h`;
   temperatureElement.innerHTML = Math.round(temperature);
   iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon" />`;
 
-  getForecast(response.data.city);
+  fetchForecastByCity(response.data.city);
 }
 
-function formatDate(date) {
+function formatCurrentWeatherDate(date) {
   let minutes = date.getMinutes();
   let hours = date.getHours();
   let days = [
@@ -41,27 +41,27 @@ function formatDate(date) {
   return `${day} ${hours}:${minutes}`;
 }
 
-function searchCity(city) {
+function fetchCurrentWeatherByCity(city) {
   let apiKey = "b2a5adcct04b33178913oc335f405433";
   let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=metric`;
-  axios.get(apiUrl).then(refreshWeather);
+  axios.get(apiUrl).then(renderCurrentWeather);
 }
 
-function handleSearchSubmit(event) {
+function handleCitySearchSubmit(event) {
   event.preventDefault();
-  let searchInput = document.querySelector("#search-form-input");
+  let searchInput = document.querySelector("#city-search-input");
 
-  searchCity(searchInput.value);
+  fetchCurrentWeatherByCity(searchInput.value);
 }
 
-function formatDay(timestamp) {
+function formatForecastDay(timestamp) {
   let date = new Date(timestamp * 1000);
   let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return days[date.getDay()];
 }
 
-function getWeatherEffect(condition) {
+function detectForecastEffect(condition) {
   let description = (condition.description || "").toLowerCase();
   let icon = condition.icon ? condition.icon.toLowerCase() : "";
   let weatherText = `${description} ${icon}`;
@@ -101,7 +101,7 @@ function getWeatherEffect(condition) {
   return "default";
 }
 
-function getWeatherParticles(weatherEffect) {
+function createForecastParticles(weatherEffect) {
   if (weatherEffect === "rain" || weatherEffect === "storm") {
     return `
       <span class="rain-drop rain-drop-one"></span>
@@ -122,25 +122,25 @@ function getWeatherParticles(weatherEffect) {
 
   return "";
 }
-function getForecast(city) {
+function fetchForecastByCity(city) {
   let apiKey = "b2a5adcct04b33178913oc335f405433";
   let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
-  axios(apiUrl).then(displayForecast);
+  axios(apiUrl).then(renderForecastCards);
 }
 
-function displayForecast(response) {
+function renderForecastCards(response) {
   let forecastHtml = "";
 
   response.data.daily.forEach(function (day, index) {
     if (index < 5) {
-      let weatherEffect = getWeatherEffect(day.condition);
-      let weatherParticles = getWeatherParticles(weatherEffect);
+      let weatherEffect = detectForecastEffect(day.condition);
+      let weatherParticles = createForecastParticles(weatherEffect);
 
       forecastHtml =
         forecastHtml +
         `
       <div class="weather-forecast-day weather-${weatherEffect}">
-        <div class="weather-forecast-date">${formatDay(day.time)}</div>
+        <div class="weather-forecast-date">${formatForecastDay(day.time)}</div>
 
         <div class="weather-forecast-icon-stage">
           <div class="weather-effect" aria-hidden="true">${weatherParticles}</div>
@@ -159,11 +159,11 @@ function displayForecast(response) {
     }
   });
 
-  let forecastElement = document.querySelector("#forecast");
+  let forecastElement = document.querySelector("#five-day-forecast");
   forecastElement.innerHTML = forecastHtml;
 }
 
-let searchFormElement = document.querySelector("#search-form");
-searchFormElement.addEventListener("submit", handleSearchSubmit);
+let searchFormElement = document.querySelector("#city-search-form");
+searchFormElement.addEventListener("submit", handleCitySearchSubmit);
 
-searchCity("Paris");
+fetchCurrentWeatherByCity("Paris");
