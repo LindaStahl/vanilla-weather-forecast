@@ -101,6 +101,27 @@ function getWeatherEffect(condition) {
   return "default";
 }
 
+function getWeatherParticles(weatherEffect) {
+  if (weatherEffect === "rain" || weatherEffect === "storm") {
+    return `
+      <span class="rain-drop rain-drop-one"></span>
+      <span class="rain-drop rain-drop-two"></span>
+      <span class="rain-drop rain-drop-three"></span>
+      <span class="rain-drop rain-drop-four"></span>
+    `;
+  }
+
+  if (weatherEffect === "snow") {
+    return `
+      <span class="snowflake snowflake-one"></span>
+      <span class="snowflake snowflake-two"></span>
+      <span class="snowflake snowflake-three"></span>
+      <span class="snowflake snowflake-four"></span>
+    `;
+  }
+
+  return "";
+}
 function getForecast(city) {
   let apiKey = "b2a5adcct04b33178913oc335f405433";
   let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
@@ -113,15 +134,18 @@ function displayForecast(response) {
   response.data.daily.forEach(function (day, index) {
     if (index < 5) {
       let weatherEffect = getWeatherEffect(day.condition);
+      let weatherParticles = getWeatherParticles(weatherEffect);
 
       forecastHtml =
         forecastHtml +
         `
       <div class="weather-forecast-day weather-${weatherEffect}">
-        <div class="weather-effect" aria-hidden="true"></div>
         <div class="weather-forecast-date">${formatDay(day.time)}</div>
 
-        <img src="${day.condition.icon_url}" class="weather-forecast-icon" />
+        <div class="weather-forecast-icon-stage">
+          <div class="weather-effect" aria-hidden="true">${weatherParticles}</div>
+          <img src="${day.condition.icon_url}" class="weather-forecast-icon" />
+        </div>
         <div class="weather-forecast-temperatures">
           <div class="weather-forecast-temperature">
             <strong>${Math.round(day.temperature.maximum)}&deg;</strong>
