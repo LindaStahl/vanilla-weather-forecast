@@ -61,6 +61,46 @@ function formatDay(timestamp) {
   return days[date.getDay()];
 }
 
+function getWeatherEffect(condition) {
+  let description = (condition.description || "").toLowerCase();
+  let icon = condition.icon ? condition.icon.toLowerCase() : "";
+  let weatherText = `${description} ${icon}`;
+
+  if (weatherText.includes("rain") || weatherText.includes("shower")) {
+    return "rain";
+  }
+
+  if (weatherText.includes("snow")) {
+    return "snow";
+  }
+
+  if (weatherText.includes("thunder") || weatherText.includes("storm")) {
+    return "storm";
+  }
+
+  if (weatherText.includes("cloud")) {
+    return "cloud";
+  }
+
+  if (
+    weatherText.includes("clear") ||
+    weatherText.includes("sun") ||
+    weatherText.includes("fair")
+  ) {
+    return "sun";
+  }
+
+  if (
+    weatherText.includes("mist") ||
+    weatherText.includes("fog") ||
+    weatherText.includes("haze")
+  ) {
+    return "mist";
+  }
+
+  return "default";
+}
+
 function getForecast(city) {
   let apiKey = "b2a5adcct04b33178913oc335f405433";
   let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
@@ -72,20 +112,23 @@ function displayForecast(response) {
 
   response.data.daily.forEach(function (day, index) {
     if (index < 5) {
+      let weatherEffect = getWeatherEffect(day.condition);
+
       forecastHtml =
         forecastHtml +
         `
-      <div class="weather-forecast-day">
+      <div class="weather-forecast-day weather-${weatherEffect}">
+        <div class="weather-effect" aria-hidden="true"></div>
         <div class="weather-forecast-date">${formatDay(day.time)}</div>
 
         <img src="${day.condition.icon_url}" class="weather-forecast-icon" />
         <div class="weather-forecast-temperatures">
           <div class="weather-forecast-temperature">
-            <strong>${Math.round(day.temperature.maximum)}º</strong>
+            <strong>${Math.round(day.temperature.maximum)}&deg;</strong>
           </div>
           <div class="weather-forecast-temperature">${Math.round(
             day.temperature.minimum
-          )}º</div>
+          )}&deg;</div>
         </div>
       </div>
     `;
