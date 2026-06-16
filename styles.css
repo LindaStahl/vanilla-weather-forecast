@@ -182,16 +182,6 @@ main {
   pointer-events: none;
 }
 
-.weather-rain .weather-effect,
-.weather-storm .weather-effect {
-  background-image:
-    linear-gradient(180deg, rgba(0, 166, 200, 0.95) 0 42%, transparent 42%),
-    linear-gradient(180deg, rgba(0, 166, 200, 0.68) 0 44%, transparent 44%);
-  background-position: 18px -18px, 52px -42px;
-  background-size: 22px 54px, 26px 68px;
-  animation: rainFall 720ms linear infinite;
-  opacity: 0.62;
-}
 
 .weather-storm .weather-effect::after {
   content: "";
@@ -242,16 +232,6 @@ footer {
   text-align: center;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
-}
-
-@keyframes rainFall {
-  from {
-    background-position: 18px -54px, 52px -68px;
-  }
-
-  to {
-    background-position: 18px 0, 52px 0;
-  }
 }
 
 @keyframes snowFall {
